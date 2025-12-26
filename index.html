@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Hash Database</title>
+    <style>
+        :root {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-main: #24292f;
+            --text-muted: #57606a;
+            --link-color: #0969da;
+            --code-bg: #f3f4f6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+
+        .search-container { margin-bottom: 30px; }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 0 rgba(208,215,222,0.2);
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: #f8f9fa;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--link-color);
+        }
+
+        .version-container { padding: 16px; border-bottom: 1px solid #eee; }
+        .version-container:last-child { border-bottom: none; }
+
+        .version-title {
+            display: inline-block;
+            background: #e1f0ff;
+            color: #0366d6;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .filename { font-weight: 600; margin-bottom: 10px; display: block; word-break: break-all; }
+
+        .hash-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+        }
+
+        .label { color: var(--text-muted); font-weight: normal; }
+        .value { 
+            background: var(--code-bg); 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            position: relative;
+            word-break: break-all;
+        }
+        .value:hover { background: #e2e4e7; }
+        .value:active { background: #d0d7de; }
+
+        .copy-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #24292f;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Game Hash Database</h1>
+    
+    <div class="search-container">
+        <input type="text" id="search" class="search-box" placeholder="Search for games, filenames or hashes...">
+    </div>
+
+    <div id="game-list">Loading database...</div>
+
+    <div id="toast" class="copy-hint">Copied to clipboard!</div>
+
+    <script>
+        let gamesData = [];
+
+        async function loadData() {
+            try {
+                const response = await fetch('games.json');
+                if (!response.ok) throw new Error('Could not load games.json');
+                gamesData = await response.json();
+                renderGames(gamesData);
+            } catch (error) {
+                document.getElementById('game-list').innerHTML = `
+                    <div style="color:red; padding: 20px; border: 1px solid red; border-radius: 6px;">
+                        Error: ${error.message}<br>
+                        Make sure the file <strong>games.json</strong> exists in the same directory.
+                    </div>`;
+            }
+        }
+
+        function renderGames(data) {
+            const listElement = document.getElementById('game-list');
+            
+            if (data.length === 0) {
+                listElement.innerHTML = "No entries found.";
+                return;
+            }
+
+            listElement.innerHTML = data.map(game => `
+                <div class="game-card">
+                    <div class="game-header">${game.title}</div>
+                    <div>
+                        ${game.versions.map(v => `
+                            <div class="version-container">
+                                <span class="version-title">${v.format}</span>
+                                <span class="filename">${v.filename}</span>
+                                <div class="hash-grid">
+                                    <span class="label">Size:</span>
+                                    <span class="value" onclick="copyText('${v.size}')">${v.size} Bytes</span>
+                                    
+                                    <span class="label">SHA-1:</span>
+                                    <span class="value" onclick="copyText('${v.sha1}')">${v.sha1}</span>
+                                    
+                                    <span class="label">MD5:</span>
+                                    <span class="value" onclick="copyText('${v.md5}')">${v.md5}</span>
+                                    
+                                    <span class="label">CRC:</span>
+                                    <span class="value" onclick="copyText('${v.crc}')">${v.crc}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = gamesData.filter(game => {
+                const inTitle = game.title.toLowerCase().includes(term);
+                const inVersions = game.versions.some(v => 
+                    v.filename.toLowerCase().includes(term) || 
+                    v.sha1.toLowerCase().includes(term) ||
+                    v.md5.toLowerCase().includes(term) ||
+                    v.crc.toLowerCase().includes(term)
+                );
+                return inTitle || inVersions;
+            });
+            renderGames(filtered);
+        });
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
