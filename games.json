@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Interactive Multi-Game Demo Disc Version 14 (USA)",
+    "versions": [
+      {
+        "format": "ISO",
+        "filename": "Interactive Multi-Game Demo Disc Version 14 (USA).iso",
+        "size": "1459978240",
+        "sha1": "4a0164c1b3638eb86654ba7d854ab93eb2fe843b",
+        "md5": "544ffd302817cd8c907d58cb257c0c6e",
+        "crc": "96537575"
+      },
+      {
+        "format": "RVZ",
+        "filename": "Interactive Multi-Game Demo Disc Version 14 (USA).rvz",
+        "size": "1121991356",
+        "sha1": "0a79a41bb24c2e3f7969fefb6058ffdf2d87bad7",
+        "md5": "979e6b4651fa0567b689fa0b389a06cc",
+        "crc": "2236cd60"
+      }
+    ]
+  },
+  {
+    "title": "Interactive Multi-Game Demo Disc Version 16 (USA)",
+    "versions": [
+      {
+        "format": "ISO",
+        "filename": "Interactive Multi-Game Demo Disc Version 16 (USA).iso",
+        "size": "1459978240",
+        "sha1": "9ad05f0392c211f4bc5d5a62224fea9be4246d19",
+        "md5": "cd01cd6209060189e75d39fa76de4687",
+        "crc": "6b3df446"
+      },
+      {
+        "format": "RVZ",
+        "filename": "Interactive Multi-Game Demo Disc Version 16 (USA).rvz",
+        "size": "848390300",
+        "sha1": "28173df860d8817d6bd8aad96858559084d0cf13",
+        "md5": "27c16c0ec4d2ca48b7fb9e69d096befa",
+        "crc": "86fb59e0"
+      }
+    ]
+  }
+]
